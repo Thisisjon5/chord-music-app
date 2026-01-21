@@ -3,7 +3,14 @@
 import { useApp } from '../store/AppContext';
 
 export function TransportControls() {
-  const { isPlaying, togglePlayback, transpose, transposeUp, transposeDown } = useApp();
+  const { isPlaying, togglePlayback, transpose, transposeUp, transposeDown, bpm, setBpm } = useApp();
+
+  const handleBpmInput = (value: string) => {
+    const numValue = parseInt(value);
+    if (!isNaN(numValue) && numValue >= 40 && numValue <= 240) {
+      setBpm(numValue);
+    }
+  };
 
   return (
     <div style={{
@@ -14,6 +21,7 @@ export function TransportControls() {
       backgroundColor: '#f9fafb',
       borderRadius: '8px',
       marginBottom: '1rem',
+      flexWrap: 'wrap',
     }}>
       <button
         onClick={togglePlayback}
@@ -31,6 +39,43 @@ export function TransportControls() {
         {isPlaying ? '⏸ Pause' : '▶ Play'}
       </button>
 
+      {/* BPM Controls */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+      }}>
+        <span style={{ fontSize: '0.875rem', color: '#666' }}>BPM:</span>
+        <input
+          type="number"
+          min="40"
+          max="240"
+          value={bpm}
+          onChange={(e) => handleBpmInput(e.target.value)}
+          style={{
+            width: '4rem',
+            padding: '0.5rem',
+            fontSize: '1rem',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            border: '1px solid #d1d5db',
+            borderRadius: '4px',
+            fontFamily: 'monospace',
+          }}
+        />
+        <input
+          type="range"
+          min="40"
+          max="240"
+          value={bpm}
+          onChange={(e) => setBpm(parseInt(e.target.value))}
+          style={{
+            width: '120px',
+          }}
+        />
+      </div>
+
+      {/* Transpose Controls */}
       <div style={{
         display: 'flex',
         alignItems: 'center',

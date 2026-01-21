@@ -32,6 +32,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [selectedChordIndex, setSelectedChordIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChordIndex, setCurrentChordIndex] = useState(0);
+  const [bpm, setBpmState] = useState(120);
   const [transpose, setTransposeState] = useState(0);
   const [performanceMode, setPerformanceMode] = useState(false);
 
@@ -46,6 +47,11 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     loopController.setTranspose(transpose);
   }, [transpose]);
+
+  // Update loop controller when BPM changes
+  useEffect(() => {
+    loopController.setBpm(bpm);
+  }, [bpm]);
 
   // Set up playback callback
   useEffect(() => {
@@ -114,6 +120,10 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   }, [isPlaying, play, pause]);
 
+  const setBpm = useCallback((newBpm: number) => {
+    setBpmState(newBpm);
+  }, []);
+
   const setTranspose = useCallback((semitones: number) => {
     setTransposeState(semitones);
   }, []);
@@ -137,6 +147,7 @@ export function AppProvider({ children }: AppProviderProps) {
     selectedChordIndex,
     isPlaying,
     currentChordIndex,
+    bpm,
     transpose,
     performanceMode,
 
@@ -151,6 +162,7 @@ export function AppProvider({ children }: AppProviderProps) {
     play,
     pause,
     togglePlayback,
+    setBpm,
     setTranspose,
     transposeUp,
     transposeDown,

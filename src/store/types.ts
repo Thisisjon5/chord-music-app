@@ -13,6 +13,7 @@ export interface AppState {
   // Playback state
   isPlaying: boolean;
   currentChordIndex: number;
+  bpm: number;
 
   // Performance layer
   transpose: number;
@@ -33,6 +34,7 @@ export interface AppActions {
   play: () => void;
   pause: () => void;
   togglePlayback: () => void;
+  setBpm: (bpm: number) => void;
 
   // Performance actions
   setTranspose: (semitones: number) => void;
