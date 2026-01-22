@@ -99,7 +99,7 @@ export function CompositionLayer() {
               {getChordSymbol(chordWithDuration.chord)}
             </div>
             <div style={{ fontSize: '0.75rem', color: '#666' }}>
-              {chordWithDuration.duration}s
+              {chordWithDuration.duration} {chordWithDuration.duration === 1 ? 'beat' : 'beats'}
             </div>
           </div>
         ))}
@@ -207,12 +207,12 @@ export function CompositionLayer() {
             {/* Duration */}
             <div>
               <label style={{ display: 'block', fontSize: '0.875rem', color: '#666', marginBottom: '0.25rem' }}>
-                Duration: {progression[selectedChordIndex].duration}s
+                Duration: {progression[selectedChordIndex].duration} {progression[selectedChordIndex].duration === 1 ? 'beat' : 'beats'}
               </label>
               <input
                 type="range"
                 min="0.25"
-                max="4"
+                max="8"
                 step="0.25"
                 value={progression[selectedChordIndex].duration}
                 onChange={(e) => updateChordDuration(selectedChordIndex, parseFloat(e.target.value))}

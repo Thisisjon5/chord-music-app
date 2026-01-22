@@ -6,7 +6,7 @@ import { Chord } from '../music/chords';
 
 export interface ChordWithDuration {
   chord: Chord;
-  duration: number; // seconds
+  duration: number; // beats
 }
 
 export type PlaybackCallback = (index: number, chord: ChordWithDuration) => void;
@@ -18,6 +18,7 @@ export class LoopController {
   private timeoutId: number | null = null;
   private currentVoicing: VoicedChord | null = null;
   private transpose = 0;
+  private bpm = 120;
   private onPlaybackChange: PlaybackCallback | null = null;
 
   constructor() {}
@@ -32,6 +33,11 @@ export class LoopController {
   setTranspose(semitones: number): void {
     this.transpose = semitones;
     clearVoicingCache(); // Clear cache when transpose changes
+  }
+
+  // Set BPM
+  setBpm(bpm: number): void {
+    this.bpm = bpm;
   }
 
   // Set playback callback
@@ -94,11 +100,12 @@ export class LoopController {
     }
 
     // Schedule next chord
-    const duration = chordWithDuration.duration * 1000; // Convert to ms
+    // Convert beats to milliseconds: (beats * 60 / bpm) * 1000
+    const durationInMs = (chordWithDuration.duration * 60 / this.bpm) * 1000;
     this.timeoutId = window.setTimeout(() => {
       this.currentIndex = (this.currentIndex + 1) % this.progression.length;
       this.playCurrentChord();
-    }, duration);
+    }, durationInMs);
   }
 
   // Get current playback state
