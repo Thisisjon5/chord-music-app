@@ -16,17 +16,17 @@ export function ChordDisplay() {
     <div style={{
       padding: '2rem',
       textAlign: 'center',
-      backgroundColor: '#f0f0f0',
+      backgroundColor: 'var(--bg-muted)',
       borderRadius: '8px',
       marginBottom: '1rem',
     }}>
-      <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
+      <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
         Now Playing
       </div>
       <div style={{
         fontSize: '3rem',
         fontWeight: 'bold',
-        color: isPlaying ? '#2563eb' : '#999',
+        color: isPlaying ? 'var(--accent)' : 'var(--text-muted)',
         fontFamily: 'monospace',
       }}>
         {currentChord ? getChordSymbol(currentChord) : '-'}

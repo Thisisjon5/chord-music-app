@@ -18,7 +18,7 @@ export function TransportControls() {
       gap: '1rem',
       alignItems: 'center',
       padding: '1rem',
-      backgroundColor: '#f9fafb',
+      backgroundColor: 'var(--bg-muted)',
       borderRadius: '8px',
       marginBottom: '1rem',
       flexWrap: 'wrap',
@@ -29,7 +29,7 @@ export function TransportControls() {
           padding: '0.75rem 1.5rem',
           fontSize: '1rem',
           fontWeight: 'bold',
-          backgroundColor: isPlaying ? '#ef4444' : '#10b981',
+          backgroundColor: isPlaying ? 'var(--danger)' : 'var(--success)',
           color: 'white',
           border: 'none',
           borderRadius: '6px',
@@ -45,7 +45,7 @@ export function TransportControls() {
         alignItems: 'center',
         gap: '0.5rem',
       }}>
-        <span style={{ fontSize: '0.875rem', color: '#666' }}>BPM:</span>
+        <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>BPM:</span>
         <input
           type="number"
           min="40"
@@ -58,9 +58,11 @@ export function TransportControls() {
             fontSize: '1rem',
             fontWeight: 'bold',
             textAlign: 'center',
-            border: '1px solid #d1d5db',
+            border: '1px solid var(--border)',
             borderRadius: '4px',
             fontFamily: 'monospace',
+            backgroundColor: 'var(--bg-card)',
+            color: 'var(--text-primary)',
           }}
         />
         <input
@@ -82,13 +84,14 @@ export function TransportControls() {
         gap: '0.5rem',
         marginLeft: 'auto',
       }}>
-        <span style={{ fontSize: '0.875rem', color: '#666' }}>Transpose:</span>
+        <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Transpose:</span>
         <button
           onClick={transposeDown}
           style={{
             padding: '0.5rem 0.75rem',
             fontSize: '1rem',
-            backgroundColor: '#e5e7eb',
+            backgroundColor: 'var(--bg-hover)',
+            color: 'var(--text-primary)',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
@@ -109,7 +112,8 @@ export function TransportControls() {
           style={{
             padding: '0.5rem 0.75rem',
             fontSize: '1rem',
-            backgroundColor: '#e5e7eb',
+            backgroundColor: 'var(--bg-hover)',
+            color: 'var(--text-primary)',
             border: 'none',
             borderRadius: '4px',
             cursor: 'pointer',
