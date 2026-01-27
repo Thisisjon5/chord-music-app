@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AppProvider, useApp } from './store/AppContext';
+import { version } from '../package.json';
 import { initAudioContext, resumeAudioContext, isAudioContextRunning } from './audio/audioContext';
 import { ChordDisplay } from './components/ChordDisplay';
 import { TransportControls } from './components/TransportControls';
@@ -158,6 +159,17 @@ function AppContent() {
         }}>
           {performanceMode ? <PerformanceLayer /> : <CompositionLayer />}
         </div>
+      </div>
+
+      {/* Version display */}
+      <div style={{
+        position: 'fixed',
+        bottom: '8px',
+        right: '12px',
+        fontSize: '12px',
+        color: '#999',
+      }}>
+        v{version}
       </div>
     </div>
   );
