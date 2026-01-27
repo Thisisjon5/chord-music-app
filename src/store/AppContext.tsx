@@ -35,6 +35,13 @@ export function AppProvider({ children }: AppProviderProps) {
   const [bpm, setBpmState] = useState(120);
   const [transpose, setTransposeState] = useState(0);
   const [performanceMode, setPerformanceMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('darkMode');
+    if (stored !== null) {
+      return stored === 'true';
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   const loopController = getLoopController();
 
@@ -59,6 +66,12 @@ export function AppProvider({ children }: AppProviderProps) {
       setCurrentChordIndex(index);
     });
   }, []);
+
+  // Apply dark mode class to body and persist to localStorage
+  useEffect(() => {
+    document.body.classList.toggle('dark', darkMode);
+    localStorage.setItem('darkMode', String(darkMode));
+  }, [darkMode]);
 
   // Actions
   const updateChord = useCallback((index: number, chord: Chord) => {
@@ -140,6 +153,10 @@ export function AppProvider({ children }: AppProviderProps) {
     loopController.triggerChord(chord, 0.5);
   }, []);
 
+  const toggleDarkMode = useCallback(() => {
+    setDarkMode(prev => !prev);
+  }, []);
+
   const value: AppContextType = {
     // State
     progression,
@@ -150,6 +167,7 @@ export function AppProvider({ children }: AppProviderProps) {
     bpm,
     transpose,
     performanceMode,
+    darkMode,
 
     // Actions
     setProgression,
@@ -168,6 +186,7 @@ export function AppProvider({ children }: AppProviderProps) {
     transposeDown,
     triggerChord,
     setPerformanceMode,
+    toggleDarkMode,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -18,6 +18,9 @@ export interface AppState {
   // Performance layer
   transpose: number;
   performanceMode: boolean;
+
+  // Theme
+  darkMode: boolean;
 }
 
 export interface AppActions {
@@ -42,6 +45,9 @@ export interface AppActions {
   transposeDown: () => void;
   triggerChord: (chord: Chord) => void;
   setPerformanceMode: (enabled: boolean) => void;
+
+  // Theme actions
+  toggleDarkMode: () => void;
 }
 
 export type AppContextType = AppState & AppActions;
