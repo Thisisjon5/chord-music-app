@@ -34,10 +34,10 @@ export function CompositionLayer() {
       <div style={{
         marginBottom: '1rem',
         padding: '1rem',
-        backgroundColor: '#f9fafb',
+        backgroundColor: 'var(--bg-muted)',
         borderRadius: '8px',
       }}>
-        <div style={{ fontSize: '0.875rem', color: '#666', marginBottom: '0.5rem' }}>
+        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
           Scale/Key
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -47,8 +47,9 @@ export function CompositionLayer() {
             style={{
               padding: '0.5rem',
               borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              backgroundColor: 'white',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
             }}
           >
             {NOTE_NAMES.map(note => (
@@ -61,8 +62,9 @@ export function CompositionLayer() {
             style={{
               padding: '0.5rem',
               borderRadius: '4px',
-              border: '1px solid #d1d5db',
-              backgroundColor: 'white',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-surface)',
+              color: 'var(--text-primary)',
             }}
           >
             {scaleTypes.map(type => (
@@ -88,9 +90,9 @@ export function CompositionLayer() {
               minWidth: '120px',
               padding: '1rem',
               borderRadius: '6px',
-              backgroundColor: selectedChordIndex === index ? '#dbeafe' :
-                currentChordIndex === index && isPlaying ? '#fef3c7' : '#f3f4f6',
-              border: selectedChordIndex === index ? '2px solid #2563eb' : '2px solid transparent',
+              backgroundColor: selectedChordIndex === index ? 'var(--accent-blue-light)' :
+                currentChordIndex === index && isPlaying ? 'var(--highlight-yellow)' : 'var(--bg-muted)',
+              border: selectedChordIndex === index ? '2px solid var(--accent-blue)' : '2px solid transparent',
               cursor: 'pointer',
               textAlign: 'center',
             }}
@@ -98,7 +100,7 @@ export function CompositionLayer() {
             <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
               {getChordSymbol(chordWithDuration.chord)}
             </div>
-            <div style={{ fontSize: '0.75rem', color: '#666' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               {chordWithDuration.duration} {chordWithDuration.duration === 1 ? 'beat' : 'beats'}
             </div>
           </div>
@@ -109,7 +111,7 @@ export function CompositionLayer() {
       {selectedChordIndex !== null && (
         <div style={{
           padding: '1rem',
-          backgroundColor: '#f9fafb',
+          backgroundColor: 'var(--bg-muted)',
           borderRadius: '8px',
           marginBottom: '1rem',
         }}>
@@ -120,7 +122,7 @@ export function CompositionLayer() {
           <div style={{ display: 'grid', gap: '1rem' }}>
             {/* Root note */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#666', marginBottom: '0.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
                 Root Note
               </label>
               <select
@@ -136,8 +138,9 @@ export function CompositionLayer() {
                   width: '100%',
                   padding: '0.5rem',
                   borderRadius: '4px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: 'white',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--text-primary)',
                 }}
               >
                 {NOTE_NAMES.map(note => (
@@ -148,7 +151,7 @@ export function CompositionLayer() {
 
             {/* Quality */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#666', marginBottom: '0.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
                 Quality
               </label>
               <select
@@ -164,8 +167,9 @@ export function CompositionLayer() {
                   width: '100%',
                   padding: '0.5rem',
                   borderRadius: '4px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: 'white',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--text-primary)',
                 }}
               >
                 {chordQualities.map(quality => (
@@ -176,7 +180,7 @@ export function CompositionLayer() {
 
             {/* Inversion */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#666', marginBottom: '0.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
                 Inversion
               </label>
               <select
@@ -192,8 +196,9 @@ export function CompositionLayer() {
                   width: '100%',
                   padding: '0.5rem',
                   borderRadius: '4px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: 'white',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-surface)',
+                  color: 'var(--text-primary)',
                 }}
               >
                 {inversions.map(inv => (
@@ -206,7 +211,7 @@ export function CompositionLayer() {
 
             {/* Duration */}
             <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', color: '#666', marginBottom: '0.25rem' }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>
                 Duration: {progression[selectedChordIndex].duration} {progression[selectedChordIndex].duration === 1 ? 'beat' : 'beats'}
               </label>
               <input
@@ -245,14 +250,14 @@ export function CompositionLayer() {
                 style={{
                   flex: 1,
                   padding: '0.5rem',
-                  backgroundColor: progression.length <= 1 ? '#d1d5db' : '#ef4444',
+                  backgroundColor: progression.length <= 1 ? 'var(--border-color)' : '#ef4444',
                   color: 'white',
                   border: 'none',
                   borderRadius: '4px',
                   cursor: progression.length <= 1 ? 'not-allowed' : 'pointer',
                 }}
               >
-                🗑 Remove
+                Remove
               </button>
             </div>
           </div>

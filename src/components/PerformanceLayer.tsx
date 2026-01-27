@@ -32,7 +32,7 @@ export function PerformanceLayer() {
               onMouseDown={() => triggerChord(chord)}
               style={{
                 padding: '1.5rem 1rem',
-                backgroundColor: '#2563eb',
+                backgroundColor: 'var(--accent-blue)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -65,10 +65,10 @@ export function PerformanceLayer() {
 
       <div style={{
         padding: '1rem',
-        backgroundColor: '#f9fafb',
+        backgroundColor: 'var(--bg-muted)',
         borderRadius: '8px',
         fontSize: '0.875rem',
-        color: '#666',
+        color: 'var(--text-secondary)',
       }}>
         Click pads to trigger chords in the current scale ({scale.root} {scale.type})
       </div>

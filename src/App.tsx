@@ -9,7 +9,7 @@ import { CompositionLayer } from './components/CompositionLayer';
 import { PerformanceLayer } from './components/PerformanceLayer';
 
 function AppContent() {
-  const { play, performanceMode, setPerformanceMode } = useApp();
+  const { play, performanceMode, setPerformanceMode, darkMode, toggleDarkMode } = useApp();
   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
 
   useEffect(() => {
@@ -65,11 +65,28 @@ function AppContent() {
       fontFamily: 'system-ui, -apple-system, sans-serif',
     }}>
       {/* Header */}
-      <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
+      <header style={{ marginBottom: '2rem', textAlign: 'center', position: 'relative' }}>
+        <button
+          onClick={toggleDarkMode}
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            padding: '0.5rem',
+            fontSize: '1.25rem',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            borderRadius: '6px',
+          }}
+          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
           🎹 Chord Music App
         </h1>
-        <p style={{ color: '#666', fontSize: '0.875rem' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
           HiChord-inspired chord progression tool
         </p>
       </header>
@@ -93,14 +110,14 @@ function AppContent() {
           }}
         >
           <div style={{
-            backgroundColor: 'white',
+            backgroundColor: 'var(--bg-surface)',
             padding: '2rem 3rem',
             borderRadius: '12px',
             textAlign: 'center',
           }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎵</div>
             <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Click to Start</h2>
-            <p style={{ color: '#666' }}>Audio requires user interaction</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Audio requires user interaction</p>
           </div>
         </div>
       )}
@@ -124,8 +141,8 @@ function AppContent() {
             onClick={() => setPerformanceMode(false)}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: !performanceMode ? '#2563eb' : '#e5e7eb',
-              color: !performanceMode ? 'white' : '#666',
+              backgroundColor: !performanceMode ? 'var(--accent-blue)' : 'var(--btn-inactive)',
+              color: !performanceMode ? 'white' : 'var(--btn-inactive-text)',
               border: 'none',
               borderRadius: '6px',
               cursor: 'pointer',
@@ -138,8 +155,8 @@ function AppContent() {
             onClick={() => setPerformanceMode(true)}
             style={{
               padding: '0.5rem 1rem',
-              backgroundColor: performanceMode ? '#2563eb' : '#e5e7eb',
-              color: performanceMode ? 'white' : '#666',
+              backgroundColor: performanceMode ? 'var(--accent-blue)' : 'var(--btn-inactive)',
+              color: performanceMode ? 'white' : 'var(--btn-inactive-text)',
               border: 'none',
               borderRadius: '6px',
               cursor: 'pointer',
@@ -152,9 +169,9 @@ function AppContent() {
 
         {/* Layer content */}
         <div style={{
-          backgroundColor: 'white',
+          backgroundColor: 'var(--bg-surface)',
           borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 1px 3px var(--shadow-color)',
         }}>
           {performanceMode ? <PerformanceLayer /> : <CompositionLayer />}
         </div>
