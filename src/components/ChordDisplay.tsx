@@ -1,10 +1,11 @@
 // Display current chord being played
 
 import { getChordSymbol } from '../music/chords';
+import { getNashvilleNumber } from '../music/scales';
 import { useApp } from '../store/AppContext';
 
 export function ChordDisplay() {
-  const { progression, currentChordIndex, isPlaying } = useApp();
+  const { progression, currentChordIndex, isPlaying, scale } = useApp();
 
   if (progression.length === 0) {
     return null;
@@ -21,7 +22,7 @@ export function ChordDisplay() {
       marginBottom: '1rem',
     }}>
       <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-        Now Playing
+        Now Playing in {scale.root} {scale.type}
       </div>
       <div style={{
         fontSize: '3rem',
@@ -29,7 +30,15 @@ export function ChordDisplay() {
         color: isPlaying ? 'var(--accent)' : 'var(--text-muted)',
         fontFamily: 'monospace',
       }}>
-        {currentChord ? getChordSymbol(currentChord) : '-'}
+        {currentChord ? getNashvilleNumber(currentChord, scale) : '-'}
+      </div>
+      <div style={{
+        fontSize: '1rem',
+        color: 'var(--text-muted)',
+        fontFamily: 'monospace',
+        marginTop: '0.25rem',
+      }}>
+        {currentChord ? getChordSymbol(currentChord) : ''}
       </div>
     </div>
   );

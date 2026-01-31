@@ -3,7 +3,7 @@
 import { useApp } from '../store/AppContext';
 import { getChordSymbol, Chord, ChordQuality, Inversion } from '../music/chords';
 import { NoteName, NOTE_NAMES } from '../music/utils';
-import { ScaleType } from '../music/scales';
+import { ScaleType, getNashvilleNumber } from '../music/scales';
 
 export function CompositionLayer() {
   const {
@@ -97,7 +97,10 @@ export function CompositionLayer() {
               textAlign: 'center',
             }}
           >
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.125rem' }}>
+              {getNashvilleNumber(chordWithDuration.chord, scale)}
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
               {getChordSymbol(chordWithDuration.chord)}
             </div>
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
