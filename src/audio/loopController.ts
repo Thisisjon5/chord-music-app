@@ -2,7 +2,7 @@
 
 import { playChord, stopChord, DEFAULT_ENVELOPE } from './synthesizer';
 import { voiceChord, VoicedChord, clearVoicingCache } from './voiceLeading';
-import { Chord } from '../music/chords';
+import { Chord, ChordQuality } from '../music/chords';
 
 export interface ChordWithDuration {
   chord: Chord;
@@ -20,6 +20,7 @@ export class LoopController {
   private transpose = 0;
   private bpm = 120;
   private onPlaybackChange: PlaybackCallback | null = null;
+  private previewQuality: ChordQuality | null = null;
 
   constructor() {}
 
@@ -75,6 +76,9 @@ export class LoopController {
   // Play the current chord in the progression
   private playCurrentChord(): void {
     if (!this.isPlaying || this.progression.length === 0) return;
+
+    // Clear preview quality when a new chord starts
+    this.previewQuality = null;
 
     const chordWithDuration = this.progression[this.currentIndex];
 
@@ -134,6 +138,74 @@ export class LoopController {
     setTimeout(() => {
       stopChord(voicing.frequencies);
     }, duration * 1000);
+  }
+
+  // Set preview quality for live morphing (non-destructive)
+  setPreviewQuality(quality: ChordQuality | null): void {
+    this.previewQuality = quality;
+  }
+
+  // Get current preview quality
+  getPreviewQuality(): ChordQuality | null {
+    return this.previewQuality;
+  }
+
+  // Clear preview quality
+  clearPreviewQuality(): void {
+    this.previewQuality = null;
+  }
+
+  // Preview the current chord with a different quality (for voicing wheel)
+  // This plays the chord immediately with the preview quality without affecting timing
+  previewCurrentChordWithQuality(quality: ChordQuality): void {
+    if (!this.isPlaying || this.progression.length === 0) return;
+
+    const chordWithDuration = this.progression[this.currentIndex];
+
+    // Create a temporary chord with the preview quality
+    const previewChord: Chord = {
+      ...chordWithDuration.chord,
+      quality: quality,
+    };
+
+    // Voice the preview chord
+    const voicing = voiceChord(previewChord, this.currentVoicing, this.transpose);
+
+    // Stop previous chord
+    if (this.currentVoicing) {
+      stopChord(this.currentVoicing.frequencies);
+    }
+
+    // Play preview chord
+    playChord(voicing.frequencies, DEFAULT_ENVELOPE);
+    this.currentVoicing = voicing;
+
+    // Store preview quality
+    this.previewQuality = quality;
+  }
+
+  // Get the current chord being played (with optional preview quality applied)
+  getCurrentChord(): Chord | null {
+    if (this.progression.length === 0) return null;
+
+    const chord = this.progression[this.currentIndex]?.chord;
+    if (!chord) return null;
+
+    // If preview quality is set, return chord with preview quality
+    if (this.previewQuality) {
+      return {
+        ...chord,
+        quality: this.previewQuality,
+      };
+    }
+
+    return chord;
+  }
+
+  // Get the original chord (without preview) at current index
+  getOriginalCurrentChord(): Chord | null {
+    if (this.progression.length === 0) return null;
+    return this.progression[this.currentIndex]?.chord || null;
   }
 }
 

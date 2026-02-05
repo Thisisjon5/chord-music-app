@@ -1,12 +1,14 @@
 // Main App component
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AppProvider, useApp } from './store/AppContext';
 import { initAudioContext, resumeAudioContext, isAudioContextRunning } from './audio/audioContext';
 import { ChordDisplay } from './components/ChordDisplay';
 import { TransportControls } from './components/TransportControls';
 import { CompositionLayer } from './components/CompositionLayer';
 import { PerformanceLayer } from './components/PerformanceLayer';
+import { VoicingWheel } from './components/VoicingWheel';
+import { getChordSymbol, ChordQuality } from './music/chords';
 
 // Check system preference for dark mode
 const getInitialTheme = (): boolean => {
@@ -18,9 +20,44 @@ const getInitialTheme = (): boolean => {
 };
 
 function AppContent() {
-  const { play, performanceMode, setPerformanceMode } = useApp();
+  const {
+    play,
+    performanceMode,
+    setPerformanceMode,
+    isPlaying,
+    progression,
+    currentPlayingChordIndex,
+    previewChordQuality,
+    updateChord,
+  } = useApp();
   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
   const [darkMode, setDarkMode] = useState(getInitialTheme);
+
+  // Get current chord info for VoicingWheel
+  const currentChord = progression[currentPlayingChordIndex]?.chord;
+  const currentChordName = currentChord ? getChordSymbol(currentChord) : '';
+  const currentQuality = currentChord?.quality || 'major';
+
+  // Handle wheel rotation - preview the new quality
+  const handleWheelRotate = useCallback((_angle: number, quality: ChordQuality) => {
+    if (isPlaying) {
+      previewChordQuality(quality);
+    }
+  }, [isPlaying, previewChordQuality]);
+
+  // Handle wheel release - save the quality to the progression
+  const handleWheelRelease = useCallback((quality: ChordQuality) => {
+    if (isPlaying && currentChord) {
+      // Only update if quality actually changed
+      if (quality !== currentChord.quality) {
+        const newChord = {
+          ...currentChord,
+          quality,
+        };
+        updateChord(currentPlayingChordIndex, newChord);
+      }
+    }
+  }, [isPlaying, currentChord, currentPlayingChordIndex, updateChord]);
 
   // Apply theme to document
   useEffect(() => {
@@ -198,6 +235,29 @@ function AppContent() {
         }}>
           {performanceMode ? <PerformanceLayer /> : <CompositionLayer />}
         </div>
+      </div>
+
+      {/* Floating Voicing Wheel */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          backgroundColor: 'var(--bg-card)',
+          borderRadius: '16px',
+          padding: '1rem',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          border: '1px solid var(--border)',
+          zIndex: 100,
+        }}
+      >
+        <VoicingWheel
+          currentQuality={currentQuality}
+          currentChordName={currentChordName}
+          isPlaying={isPlaying}
+          onRotate={handleWheelRotate}
+          onRelease={handleWheelRelease}
+        />
       </div>
     </div>
   );

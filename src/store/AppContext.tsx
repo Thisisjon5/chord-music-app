@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
 import { AppContextType } from './types';
 import { Scale } from '../music/scales';
-import { Chord } from '../music/chords';
+import { Chord, ChordQuality } from '../music/chords';
 import { ChordWithDuration, getLoopController } from '../audio/loopController';
 import { getChordFromDegree } from '../music/scales';
 
@@ -140,6 +140,14 @@ export function AppProvider({ children }: AppProviderProps) {
     loopController.triggerChord(chord, 0.5);
   }, []);
 
+  const previewChordQuality = useCallback((quality: ChordQuality) => {
+    loopController.previewCurrentChordWithQuality(quality);
+  }, []);
+
+  const clearPreviewQuality = useCallback(() => {
+    loopController.clearPreviewQuality();
+  }, []);
+
   const value: AppContextType = {
     // State
     progression,
@@ -147,6 +155,7 @@ export function AppProvider({ children }: AppProviderProps) {
     selectedChordIndex,
     isPlaying,
     currentChordIndex,
+    currentPlayingChordIndex: currentChordIndex, // Alias for VoicingWheel
     bpm,
     transpose,
     performanceMode,
@@ -168,6 +177,8 @@ export function AppProvider({ children }: AppProviderProps) {
     transposeDown,
     triggerChord,
     setPerformanceMode,
+    previewChordQuality,
+    clearPreviewQuality,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,6 +1,6 @@
 // Type definitions for app state
 
-import { Chord } from '../music/chords';
+import { Chord, ChordQuality } from '../music/chords';
 import { Scale } from '../music/scales';
 import { ChordWithDuration } from '../audio/loopController';
 
@@ -13,6 +13,7 @@ export interface AppState {
   // Playback state
   isPlaying: boolean;
   currentChordIndex: number;
+  currentPlayingChordIndex: number; // Alias for currentChordIndex, used by VoicingWheel
   bpm: number;
 
   // Performance layer
@@ -42,6 +43,10 @@ export interface AppActions {
   transposeDown: () => void;
   triggerChord: (chord: Chord) => void;
   setPerformanceMode: (enabled: boolean) => void;
+
+  // Voicing wheel actions
+  previewChordQuality: (quality: ChordQuality) => void;
+  clearPreviewQuality: () => void;
 }
 
 export type AppContextType = AppState & AppActions;
