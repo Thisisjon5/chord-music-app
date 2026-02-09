@@ -1,13 +1,13 @@
-# Task 3 of 3: Add Record Button UI and Integrate Recording into PerformanceLayer
+# Worker Report: Issue #96
 
-## What Changed
-Added recording UI controls to PerformanceLayer.tsx that integrate with the existing recording state from AppContext. The implementation includes a Record/Stop toggle button with visual feedback (pulsing red indicator and chord count during recording), and Play/Stop loop controls that appear after recording is complete showing the detected BPM.
+## What Changed and Why
 
-## Files Modified
-- `src/components/PerformanceLayer.tsx`: Added recording controls section with Record/Stop button, recording status indicator, and loop playback controls
+Added keyboard support to PerformanceLayer so users can trigger scale degree chords by pressing number keys 1-7. The implementation uses hold-to-play behavior where chords sustain while keys are held and stop on release, supporting polyphony for layering multiple chords. Visual feedback highlights active buttons with a green glow effect.
 
 ## Subagents Used
-None required for this task.
+
+- **code-reviewer**: Identified critical stale closure bug where `activeKeys` in the useEffect dependency array caused cleanup to run on every key press, breaking polyphony. Also identified double-play issue and missing blur handler. All issues were fixed.
 
 ## Scope Concerns
-None. Changes were limited to PerformanceLayer.tsx as specified. CompositionLayer, TransportControls, and chord pad functionality were not modified.
+
+None. Implementation only touches PerformanceLayer.tsx as specified. Mouse-based interactions, recording controls, and chord progression playback remain unchanged.

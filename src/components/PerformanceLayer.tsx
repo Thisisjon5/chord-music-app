@@ -1,8 +1,11 @@
 // Live performance interface with chord triggers
 
+import { useEffect, useState, useRef } from 'react';
 import { useApp } from '../store/AppContext';
 import { getChordFromDegree, getRomanNumeral } from '../music/scales';
 import { getChordSymbol } from '../music/chords';
+import { playChord, stopChord, DEFAULT_ENVELOPE } from '../audio/synthesizer';
+import { voiceChord, VoicedChord } from '../audio/voiceLeading';
 
 export function PerformanceLayer() {
   const {
@@ -20,6 +23,99 @@ export function PerformanceLayer() {
 
   const degrees = [1, 2, 3, 4, 5, 6, 7];
 
+  // Track which keys are currently held down (for visual feedback)
+  const [activeKeys, setActiveKeys] = useState<Set<number>>(new Set());
+  // Use refs to track pressed keys and voicings to avoid stale closures
+  const pressedKeysRef = useRef<Set<number>>(new Set());
+  const activeVoicingsRef = useRef<Map<number, VoicedChord>>(new Map());
+  // Store scale and isRecording in refs for use in event handlers
+  const scaleRef = useRef(scale);
+  const isRecordingRef = useRef(isRecording);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+
+  // Keyboard event handlers - set up once on mount
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Map keys 1-7 to degrees 1-7
+      const keyNum = parseInt(e.key, 10);
+      if (keyNum >= 1 && keyNum <= 7) {
+        // Prevent key repeat from triggering multiple times
+        if (!pressedKeysRef.current.has(keyNum)) {
+          pressedKeysRef.current.add(keyNum);
+          setActiveKeys(new Set(pressedKeysRef.current));
+
+          // Play the chord
+          const chord = getChordFromDegree(scaleRef.current, keyNum);
+          const voicing = voiceChord(chord, null, 0);
+          activeVoicingsRef.current.set(keyNum, voicing);
+          playChord(voicing.frequencies, DEFAULT_ENVELOPE);
+
+          // Record the chord if recording (uses triggerChord for recording only, not playback)
+          if (isRecordingRef.current) {
+            triggerChord(chord);
+          }
+        }
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      const keyNum = parseInt(e.key, 10);
+      if (keyNum >= 1 && keyNum <= 7) {
+        pressedKeysRef.current.delete(keyNum);
+        setActiveKeys(new Set(pressedKeysRef.current));
+
+        // Stop the chord
+        const voicing = activeVoicingsRef.current.get(keyNum);
+        if (voicing) {
+          stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
+          activeVoicingsRef.current.delete(keyNum);
+        }
+      }
+    };
+
+    const handleBlur = () => {
+      // Stop all playing chords when window loses focus
+      activeVoicingsRef.current.forEach((voicing) => {
+        stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
+      });
+      activeVoicingsRef.current.clear();
+      pressedKeysRef.current.clear();
+      setActiveKeys(new Set());
+    };
+
+    // Add listeners
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleBlur);
+
+    // Cleanup on unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleBlur);
+
+      // Stop any playing chords when component unmounts
+      activeVoicingsRef.current.forEach((voicing) => {
+        stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
+      });
+      activeVoicingsRef.current.clear();
+      pressedKeysRef.current.clear();
+    };
+  }, [triggerChord]);
+
   return (
     <div style={{ padding: '1rem' }}>
       <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 'bold' }}>
@@ -36,6 +132,7 @@ export function PerformanceLayer() {
           const chord = getChordFromDegree(scale, degree);
           const romanNumeral = getRomanNumeral(scale, degree);
           const symbol = getChordSymbol(chord);
+          const isActive = activeKeys.has(degree);
 
           return (
             <button
@@ -43,7 +140,7 @@ export function PerformanceLayer() {
               onMouseDown={() => triggerChord(chord)}
               style={{
                 padding: '1.5rem 1rem',
-                backgroundColor: 'var(--accent)',
+                backgroundColor: isActive ? '#22c55e' : 'var(--accent)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
@@ -54,15 +151,24 @@ export function PerformanceLayer() {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '0.25rem',
-                transition: 'transform 0.1s',
+                transition: 'transform 0.1s, background-color 0.1s',
+                transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: isActive ? '0 0 12px rgba(34, 197, 94, 0.5)' : 'none',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.05)';
+                if (!isActive) {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
+                if (!isActive) {
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
               }}
             >
+              <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>
+                {degree}
+              </div>
               <div style={{ fontSize: '0.875rem', opacity: 0.8 }}>
                 {romanNumeral}
               </div>
@@ -81,7 +187,7 @@ export function PerformanceLayer() {
         fontSize: '0.875rem',
         color: 'var(--text-secondary)',
       }}>
-        Click pads to trigger chords in the current scale ({scale.root} {scale.type})
+        Click pads or hold keys 1-7 to trigger chords in {scale.root} {scale.type}
       </div>
 
       {/* Recording Controls */}
