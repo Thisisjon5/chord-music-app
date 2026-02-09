@@ -5,7 +5,18 @@ import { getChordFromDegree, getRomanNumeral } from '../music/scales';
 import { getChordSymbol } from '../music/chords';
 
 export function PerformanceLayer() {
-  const { scale, triggerChord } = useApp();
+  const {
+    scale,
+    triggerChord,
+    isRecording,
+    recordedChords,
+    recordedBpm,
+    isPlayingRecordedLoop,
+    startRecording,
+    stopRecording,
+    startRecordedLoop,
+    stopRecordedLoop,
+  } = useApp();
 
   const degrees = [1, 2, 3, 4, 5, 6, 7];
 
@@ -72,6 +83,101 @@ export function PerformanceLayer() {
       }}>
         Click pads to trigger chords in the current scale ({scale.root} {scale.type})
       </div>
+
+      {/* Recording Controls */}
+      <div style={{
+        marginTop: '1rem',
+        padding: '1rem',
+        backgroundColor: 'var(--bg-muted)',
+        borderRadius: '8px',
+      }}>
+        <div style={{ marginBottom: '0.75rem', fontWeight: 'bold' }}>
+          Recording
+        </div>
+
+        {/* Record / Stop button */}
+        <button
+          onClick={isRecording ? stopRecording : startRecording}
+          style={{
+            padding: '0.75rem 1.5rem',
+            backgroundColor: isRecording ? '#dc2626' : 'var(--accent)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+          }}
+        >
+          <span style={{
+            display: 'inline-block',
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: isRecording ? 'white' : '#dc2626',
+            animation: isRecording ? 'pulse 1s infinite' : 'none',
+          }} />
+          {isRecording ? 'Stop' : 'Record'}
+        </button>
+
+        {/* Recording feedback */}
+        {isRecording && (
+          <div style={{
+            marginTop: '0.75rem',
+            padding: '0.5rem 0.75rem',
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            borderRadius: '4px',
+            fontSize: '0.875rem',
+            color: '#dc2626',
+            fontWeight: 'bold',
+          }}>
+            Recording: {recordedChords.length} chord{recordedChords.length !== 1 ? 's' : ''}
+          </div>
+        )}
+
+        {/* Recorded loop controls (shown when we have a recording) */}
+        {!isRecording && recordedChords.length > 0 && recordedBpm !== null && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <div style={{
+              marginBottom: '0.5rem',
+              fontSize: '0.875rem',
+              color: 'var(--text-secondary)',
+            }}>
+              {isPlayingRecordedLoop
+                ? `Loop playing at ${recordedBpm} BPM`
+                : `${recordedChords.length} chord${recordedChords.length !== 1 ? 's' : ''} recorded at ${recordedBpm} BPM`}
+            </div>
+
+            {/* Play/Stop loop button */}
+            <button
+              onClick={isPlayingRecordedLoop ? stopRecordedLoop : startRecordedLoop}
+              style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: isPlayingRecordedLoop ? '#dc2626' : '#22c55e',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+              }}
+            >
+              {isPlayingRecordedLoop ? 'Stop Loop' : 'Play Loop'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* CSS animation for pulsing indicator */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 }
