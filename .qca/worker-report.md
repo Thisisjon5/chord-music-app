@@ -1,14 +1,15 @@
-# Task 1 of 3: Recording Data Structure and Detection Logic
+# Task 2 of 3: Implement Recorded Chord Playback Loop
 
 ## What Changed
-Added recording feature foundation to the AppContext. Created `RecordedChordEvent` type to store chord and timestamp data, implemented `detectBpm()` function that analyzes inter-chord intervals using median for robustness against variable timing, and integrated recording state/actions into the React context. The `triggerChord()` function now captures chords with precise timestamps when recording is active.
+Created a new `RecordedLoopController` class that manages playback of recorded chords independently from the main `LoopController`. This controller uses the detected BPM from the recording session and explicitly ignores both the app's BPM setting and performance transpose, ensuring the recorded loop plays back exactly as performed. Added `isPlayingRecordedLoop` state and `startRecordedLoop`/`stopRecordedLoop` actions to AppContext.
 
 ## Files Modified
-- `src/store/types.ts`: Added `RecordedChordEvent` type, `detectBpm()` function, and recording state/action types
-- `src/store/AppContext.tsx`: Added recording state (`isRecording`, `recordedChords`, `recordedBpm`), recording actions (`startRecording`, `stopRecording`, `clearRecording`), and timestamp capture in `triggerChord()`
+- `src/audio/recordedLoopController.ts`: New file - `RecordedLoopController` class with `setRecording()`, `start()`, `stop()` methods
+- `src/store/types.ts`: Added `isPlayingRecordedLoop` state and `startRecordedLoop`/`stopRecordedLoop` action types
+- `src/store/AppContext.tsx`: Added recorded loop controller ref, playback state, and action implementations
 
 ## Subagents Used
 None required for this task.
 
 ## Scope Concerns
-None. Changes were limited to the specified files and did not touch LoopController logic, audio synthesis, or persistence.
+None. The existing `LoopController` class was not modified per the scope guard requirements. The new controller is fully separate and does not share state with the main loop.

@@ -70,6 +70,9 @@ export interface AppState {
   isRecording: boolean;
   recordedChords: RecordedChordEvent[];
   recordedBpm: number | null;
+
+  // Recorded loop playback state
+  isPlayingRecordedLoop: boolean;
 }
 
 export interface AppActions {
@@ -103,6 +106,10 @@ export interface AppActions {
   startRecording: () => void;
   stopRecording: () => void;
   clearRecording: () => void;
+
+  // Recorded loop playback actions
+  startRecordedLoop: () => void;
+  stopRecordedLoop: () => void;
 }
 
 export type AppContextType = AppState & AppActions;

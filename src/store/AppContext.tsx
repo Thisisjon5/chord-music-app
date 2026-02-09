@@ -5,6 +5,7 @@ import { AppContextType, RecordedChordEvent, detectBpm } from './types';
 import { Scale } from '../music/scales';
 import { Chord, ChordQuality } from '../music/chords';
 import { ChordWithDuration, getLoopController } from '../audio/loopController';
+import { RecordedLoopController } from '../audio/recordedLoopController';
 import { getChordFromDegree } from '../music/scales';
 
 // Create context
@@ -41,6 +42,10 @@ export function AppProvider({ children }: AppProviderProps) {
   const [recordedChords, setRecordedChords] = useState<RecordedChordEvent[]>([]);
   const [recordedBpm, setRecordedBpm] = useState<number | null>(null);
   const recordingStartTimeRef = useRef<number | null>(null);
+
+  // Recorded loop playback state
+  const [isPlayingRecordedLoop, setIsPlayingRecordedLoop] = useState(false);
+  const recordedLoopControllerRef = useRef<RecordedLoopController | null>(null);
 
   const loopController = getLoopController();
 
@@ -186,6 +191,28 @@ export function AppProvider({ children }: AppProviderProps) {
     setIsRecording(false);
   }, []);
 
+  // Recorded loop playback actions
+  const startRecordedLoop = useCallback(() => {
+    if (recordedChords.length === 0 || recordedBpm === null) return;
+
+    // Create or reuse the recorded loop controller
+    if (!recordedLoopControllerRef.current) {
+      recordedLoopControllerRef.current = new RecordedLoopController();
+    }
+
+    // Set the recording data (uses detected BPM, ignores app BPM)
+    recordedLoopControllerRef.current.setRecording(recordedChords, recordedBpm);
+    recordedLoopControllerRef.current.start();
+    setIsPlayingRecordedLoop(true);
+  }, [recordedChords, recordedBpm]);
+
+  const stopRecordedLoop = useCallback(() => {
+    if (recordedLoopControllerRef.current) {
+      recordedLoopControllerRef.current.stop();
+    }
+    setIsPlayingRecordedLoop(false);
+  }, []);
+
   const value: AppContextType = {
     // State
     progression,
@@ -200,6 +227,7 @@ export function AppProvider({ children }: AppProviderProps) {
     isRecording,
     recordedChords,
     recordedBpm,
+    isPlayingRecordedLoop,
 
     // Actions
     setProgression,
@@ -223,6 +251,8 @@ export function AppProvider({ children }: AppProviderProps) {
     startRecording,
     stopRecording,
     clearRecording,
+    startRecordedLoop,
+    stopRecordedLoop,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
