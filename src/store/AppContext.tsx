@@ -1,7 +1,7 @@
 // React Context for global app state
 
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
-import { AppContextType } from './types';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
+import { AppContextType, RecordedChordEvent, detectBpm } from './types';
 import { Scale } from '../music/scales';
 import { Chord, ChordQuality } from '../music/chords';
 import { ChordWithDuration, getLoopController } from '../audio/loopController';
@@ -35,6 +35,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const [bpm, setBpmState] = useState(120);
   const [transpose, setTransposeState] = useState(0);
   const [performanceMode, setPerformanceMode] = useState(false);
+
+  // Recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedChords, setRecordedChords] = useState<RecordedChordEvent[]>([]);
+  const [recordedBpm, setRecordedBpm] = useState<number | null>(null);
+  const recordingStartTimeRef = useRef<number | null>(null);
 
   const loopController = getLoopController();
 
@@ -138,6 +144,12 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const triggerChord = useCallback((chord: Chord) => {
     loopController.triggerChord(chord, 0.5);
+
+    // Capture chord with timestamp if recording
+    if (recordingStartTimeRef.current !== null) {
+      const timestamp = performance.now() - recordingStartTimeRef.current;
+      setRecordedChords(prev => [...prev, { chord, timestamp }]);
+    }
   }, []);
 
   const previewChordQuality = useCallback((quality: ChordQuality) => {
@@ -146,6 +158,32 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const clearPreviewQuality = useCallback(() => {
     loopController.clearPreviewQuality();
+  }, []);
+
+  // Recording actions
+  const startRecording = useCallback(() => {
+    setRecordedChords([]);
+    setRecordedBpm(null);
+    recordingStartTimeRef.current = performance.now();
+    setIsRecording(true);
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    setIsRecording(false);
+    recordingStartTimeRef.current = null;
+    // Detect BPM from recorded chords
+    setRecordedChords(currentChords => {
+      const detectedBpm = detectBpm(currentChords);
+      setRecordedBpm(detectedBpm);
+      return currentChords;
+    });
+  }, []);
+
+  const clearRecording = useCallback(() => {
+    setRecordedChords([]);
+    setRecordedBpm(null);
+    recordingStartTimeRef.current = null;
+    setIsRecording(false);
   }, []);
 
   const value: AppContextType = {
@@ -159,6 +197,9 @@ export function AppProvider({ children }: AppProviderProps) {
     bpm,
     transpose,
     performanceMode,
+    isRecording,
+    recordedChords,
+    recordedBpm,
 
     // Actions
     setProgression,
@@ -179,6 +220,9 @@ export function AppProvider({ children }: AppProviderProps) {
     setPerformanceMode,
     previewChordQuality,
     clearPreviewQuality,
+    startRecording,
+    stopRecording,
+    clearRecording,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
