@@ -145,10 +145,47 @@ export function PerformanceLayer() {
           const symbol = getChordSymbol(chord);
           const isActive = activeKeys.has(degree);
 
+          const handlePadMouseDown = () => {
+            // Play the chord
+            const voicing = voiceChord(chord, null, 0);
+            activeVoicingsRef.current.set(degree, voicing);
+            playChord(voicing.frequencies, DEFAULT_ENVELOPE);
+
+            // Mark as active
+            pressedKeysRef.current.add(degree);
+            setActiveKeys(new Set(pressedKeysRef.current));
+            setIsPerformanceChordHeld(true);
+
+            // Record if recording
+            if (isRecordingRef.current) {
+              triggerChord(chord);
+            }
+          };
+
+          const handlePadMouseUp = () => {
+            // Stop the chord
+            const voicing = activeVoicingsRef.current.get(degree);
+            if (voicing) {
+              stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
+              activeVoicingsRef.current.delete(degree);
+            }
+
+            // Mark as inactive
+            pressedKeysRef.current.delete(degree);
+            setActiveKeys(new Set(pressedKeysRef.current));
+
+            // Check if any chords still held
+            if (pressedKeysRef.current.size === 0) {
+              setIsPerformanceChordHeld(false);
+            }
+          };
+
           return (
             <button
               key={degree}
-              onMouseDown={() => triggerChord(chord)}
+              onMouseDown={handlePadMouseDown}
+              onMouseUp={handlePadMouseUp}
+              onMouseLeave={handlePadMouseUp}
               style={{
                 padding: '1.5rem 1rem',
                 backgroundColor: isActive ? '#22c55e' : 'var(--accent)',
