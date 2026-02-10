@@ -66,6 +66,7 @@ export interface AppState {
   transpose: number;
   performanceMode: boolean;
   isPerformanceChordHeld: boolean; // Track if any performance chord is actively held
+  currentPerformanceChord: Chord | null; // The chord currently being held in performance mode
 
   // Recording state
   isRecording: boolean;
@@ -99,6 +100,7 @@ export interface AppActions {
   triggerChord: (chord: Chord) => void;
   setPerformanceMode: (enabled: boolean) => void;
   setIsPerformanceChordHeld: (isHeld: boolean) => void;
+  setCurrentPerformanceChord: (chord: Chord | null) => void;
 
   // Voicing wheel actions
   previewChordQuality: (quality: ChordQuality) => void;

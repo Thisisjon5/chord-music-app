@@ -1,6 +1,6 @@
 // Main App component
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { AppProvider, useApp } from './store/AppContext';
 import { initAudioContext, resumeAudioContext, isAudioContextRunning } from './audio/audioContext';
 import { ChordDisplay } from './components/ChordDisplay';
@@ -9,6 +9,8 @@ import { CompositionLayer } from './components/CompositionLayer';
 import { PerformanceLayer } from './components/PerformanceLayer';
 import { VoicingWheel } from './components/VoicingWheel';
 import { getChordSymbol, ChordQuality } from './music/chords';
+import { playChord, stopChord, DEFAULT_ENVELOPE } from './audio/synthesizer';
+import { voiceChord } from './audio/voiceLeading';
 
 // Check system preference for dark mode
 const getInitialTheme = (): boolean => {
@@ -26,6 +28,7 @@ function AppContent() {
     setPerformanceMode,
     isPlaying,
     isPerformanceChordHeld,
+    currentPerformanceChord,
     progression,
     currentPlayingChordIndex,
     previewChordQuality,
@@ -34,18 +37,35 @@ function AppContent() {
   const [needsUserInteraction, setNeedsUserInteraction] = useState(false);
   const [darkMode, setDarkMode] = useState(getInitialTheme);
 
+  // Track the currently held performance chord quality for morphing
+  const lastPerformanceChordRef = useRef<{ chord: any, degree: number } | null>(null);
+
   // Get current chord info for VoicingWheel
-  const currentChord = progression[currentPlayingChordIndex]?.chord;
+  // In performance mode, use the currently held performance chord
+  // In composition mode, use the current progression chord
+  const currentChord = performanceMode && currentPerformanceChord
+    ? currentPerformanceChord
+    : progression[currentPlayingChordIndex]?.chord;
   const currentChordName = currentChord ? getChordSymbol(currentChord) : '';
   const currentQuality = currentChord?.quality || 'major';
 
   // Handle wheel rotation - preview the new quality
   const handleWheelRotate = useCallback((_angle: number, quality: ChordQuality) => {
-    // Enable wheel in composition mode (isPlaying) or performance mode (isPerformanceChordHeld)
-    if (isPlaying || isPerformanceChordHeld) {
+    // In composition mode, use the loop controller's preview
+    if (isPlaying && !performanceMode) {
       previewChordQuality(quality);
     }
-  }, [isPlaying, isPerformanceChordHeld, previewChordQuality]);
+    // In performance mode, morph the currently held chord directly
+    else if (performanceMode && isPerformanceChordHeld && currentPerformanceChord) {
+      // Create morphed chord with new quality
+      const morphedChord = { ...currentPerformanceChord, quality };
+      const voicing = voiceChord(morphedChord, null, 0);
+
+      // Stop any previous chord and play the morphed one
+      stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
+      playChord(voicing.frequencies, DEFAULT_ENVELOPE);
+    }
+  }, [isPlaying, performanceMode, isPerformanceChordHeld, currentPerformanceChord, previewChordQuality]);
 
   // Handle wheel release - save the quality to the progression (only in composition mode)
   const handleWheelRelease = useCallback((quality: ChordQuality) => {

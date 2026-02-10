@@ -37,6 +37,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const [transpose, setTransposeState] = useState(0);
   const [performanceMode, setPerformanceMode] = useState(false);
   const [isPerformanceChordHeld, setIsPerformanceChordHeld] = useState(false);
+  const [currentPerformanceChord, setCurrentPerformanceChord] = useState<Chord | null>(null);
 
   // Recording state
   const [isRecording, setIsRecording] = useState(false);
@@ -226,6 +227,7 @@ export function AppProvider({ children }: AppProviderProps) {
     transpose,
     performanceMode,
     isPerformanceChordHeld,
+    currentPerformanceChord,
     isRecording,
     recordedChords,
     recordedBpm,
@@ -249,6 +251,7 @@ export function AppProvider({ children }: AppProviderProps) {
     triggerChord,
     setPerformanceMode,
     setIsPerformanceChordHeld,
+    setCurrentPerformanceChord,
     previewChordQuality,
     clearPreviewQuality,
     startRecording,

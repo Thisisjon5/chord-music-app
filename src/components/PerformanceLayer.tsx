@@ -20,6 +20,7 @@ export function PerformanceLayer() {
     startRecordedLoop,
     stopRecordedLoop,
     setIsPerformanceChordHeld,
+    setCurrentPerformanceChord,
   } = useApp();
 
   const degrees = [1, 2, 3, 4, 5, 6, 7];
@@ -66,6 +67,7 @@ export function PerformanceLayer() {
 
           // Signal that a performance chord is now held
           setIsPerformanceChordHeld(true);
+          setCurrentPerformanceChord(chord);
 
           // Record the chord if recording (uses triggerChord for recording only, not playback)
           if (isRecordingRef.current) {
@@ -91,6 +93,7 @@ export function PerformanceLayer() {
         // Signal if no more chords are held
         if (pressedKeysRef.current.size === 0) {
           setIsPerformanceChordHeld(false);
+          setCurrentPerformanceChord(null);
         }
       }
     };
@@ -104,6 +107,7 @@ export function PerformanceLayer() {
       pressedKeysRef.current.clear();
       setActiveKeys(new Set());
       setIsPerformanceChordHeld(false);
+      setCurrentPerformanceChord(null);
     };
 
     // Add listeners
@@ -124,8 +128,9 @@ export function PerformanceLayer() {
       activeVoicingsRef.current.clear();
       pressedKeysRef.current.clear();
       setIsPerformanceChordHeld(false);
+      setCurrentPerformanceChord(null);
     };
-  }, [triggerChord, setIsPerformanceChordHeld]);
+  }, [triggerChord, setIsPerformanceChordHeld, setCurrentPerformanceChord]);
 
   return (
     <div style={{ padding: '1rem' }}>
@@ -155,6 +160,7 @@ export function PerformanceLayer() {
             pressedKeysRef.current.add(degree);
             setActiveKeys(new Set(pressedKeysRef.current));
             setIsPerformanceChordHeld(true);
+            setCurrentPerformanceChord(chord);
 
             // Record if recording
             if (isRecordingRef.current) {
@@ -177,6 +183,7 @@ export function PerformanceLayer() {
             // Check if any chords still held
             if (pressedKeysRef.current.size === 0) {
               setIsPerformanceChordHeld(false);
+              setCurrentPerformanceChord(null);
             }
           };
 
