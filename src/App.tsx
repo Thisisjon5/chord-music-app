@@ -25,6 +25,7 @@ function AppContent() {
     performanceMode,
     setPerformanceMode,
     isPlaying,
+    isPerformanceChordHeld,
     progression,
     currentPlayingChordIndex,
     previewChordQuality,
@@ -40,14 +41,16 @@ function AppContent() {
 
   // Handle wheel rotation - preview the new quality
   const handleWheelRotate = useCallback((_angle: number, quality: ChordQuality) => {
-    if (isPlaying) {
+    // Enable wheel in composition mode (isPlaying) or performance mode (isPerformanceChordHeld)
+    if (isPlaying || isPerformanceChordHeld) {
       previewChordQuality(quality);
     }
-  }, [isPlaying, previewChordQuality]);
+  }, [isPlaying, isPerformanceChordHeld, previewChordQuality]);
 
-  // Handle wheel release - save the quality to the progression
+  // Handle wheel release - save the quality to the progression (only in composition mode)
   const handleWheelRelease = useCallback((quality: ChordQuality) => {
-    if (isPlaying && currentChord) {
+    // Only save to progression in composition mode, not performance mode
+    if (isPlaying && !performanceMode && currentChord) {
       // Only update if quality actually changed
       if (quality !== currentChord.quality) {
         const newChord = {
@@ -57,7 +60,7 @@ function AppContent() {
         updateChord(currentPlayingChordIndex, newChord);
       }
     }
-  }, [isPlaying, currentChord, currentPlayingChordIndex, updateChord]);
+  }, [isPlaying, performanceMode, currentChord, currentPlayingChordIndex, updateChord]);
 
   // Apply theme to document
   useEffect(() => {
@@ -254,7 +257,7 @@ function AppContent() {
         <VoicingWheel
           currentQuality={currentQuality}
           currentChordName={currentChordName}
-          isPlaying={isPlaying}
+          isPlaying={isPlaying || isPerformanceChordHeld}
           onRotate={handleWheelRotate}
           onRelease={handleWheelRelease}
         />

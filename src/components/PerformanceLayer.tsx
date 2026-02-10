@@ -19,6 +19,7 @@ export function PerformanceLayer() {
     stopRecording,
     startRecordedLoop,
     stopRecordedLoop,
+    setIsPerformanceChordHeld,
   } = useApp();
 
   const degrees = [1, 2, 3, 4, 5, 6, 7];
@@ -63,6 +64,9 @@ export function PerformanceLayer() {
           activeVoicingsRef.current.set(keyNum, voicing);
           playChord(voicing.frequencies, DEFAULT_ENVELOPE);
 
+          // Signal that a performance chord is now held
+          setIsPerformanceChordHeld(true);
+
           // Record the chord if recording (uses triggerChord for recording only, not playback)
           if (isRecordingRef.current) {
             triggerChord(chord);
@@ -83,6 +87,11 @@ export function PerformanceLayer() {
           stopChord(voicing.frequencies, DEFAULT_ENVELOPE);
           activeVoicingsRef.current.delete(keyNum);
         }
+
+        // Signal if no more chords are held
+        if (pressedKeysRef.current.size === 0) {
+          setIsPerformanceChordHeld(false);
+        }
       }
     };
 
@@ -94,6 +103,7 @@ export function PerformanceLayer() {
       activeVoicingsRef.current.clear();
       pressedKeysRef.current.clear();
       setActiveKeys(new Set());
+      setIsPerformanceChordHeld(false);
     };
 
     // Add listeners
@@ -113,8 +123,9 @@ export function PerformanceLayer() {
       });
       activeVoicingsRef.current.clear();
       pressedKeysRef.current.clear();
+      setIsPerformanceChordHeld(false);
     };
-  }, [triggerChord]);
+  }, [triggerChord, setIsPerformanceChordHeld]);
 
   return (
     <div style={{ padding: '1rem' }}>
