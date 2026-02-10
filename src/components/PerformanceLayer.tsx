@@ -21,6 +21,7 @@ export function PerformanceLayer() {
     stopRecordedLoop,
     setIsPerformanceChordHeld,
     setCurrentPerformanceChord,
+    registerMorphCallback,
   } = useApp();
 
   const degrees = [1, 2, 3, 4, 5, 6, 7];
@@ -42,6 +43,38 @@ export function PerformanceLayer() {
   useEffect(() => {
     isRecordingRef.current = isRecording;
   }, [isRecording]);
+
+  // Morph all currently playing chords to a new quality
+  const morphToQuality = useCallback((quality: ChordQuality) => {
+    // For each active voicing, stop it and replay with new quality
+    activeVoicingsRef.current.forEach((oldVoicing, degree) => {
+      // Get the chord for this degree
+      const chord = getChordFromDegree(scale, degree);
+      // Create morphed chord with new quality
+      const morphedChord = { ...chord, quality };
+      const newVoicing = voiceChord(morphedChord, null, 0);
+
+      // Stop old, play new
+      stopChord(oldVoicing.frequencies, DEFAULT_ENVELOPE);
+      playChord(newVoicing.frequencies, DEFAULT_ENVELOPE);
+
+      // Update the tracked voicing
+      activeVoicingsRef.current.set(degree, newVoicing);
+    });
+
+    // Update the current performance chord quality
+    if (currentPerformanceChord) {
+      setCurrentPerformanceChord({ ...currentPerformanceChord, quality });
+    }
+  }, [scale, currentPerformanceChord, setCurrentPerformanceChord]);
+
+  // Register the morph callback on mount
+  useEffect(() => {
+    registerMorphCallback(morphToQuality);
+    return () => {
+      registerMorphCallback(null);
+    };
+  }, [morphToQuality, registerMorphCallback]);
 
   // Keyboard event handlers - set up once on mount
   useEffect(() => {

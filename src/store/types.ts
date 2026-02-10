@@ -105,6 +105,8 @@ export interface AppActions {
   // Voicing wheel actions
   previewChordQuality: (quality: ChordQuality) => void;
   clearPreviewQuality: () => void;
+  morphPerformanceChord: (quality: ChordQuality) => void;
+  registerMorphCallback: (callback: ((quality: ChordQuality) => void) | null) => void;
 
   // Recording actions
   startRecording: () => void;

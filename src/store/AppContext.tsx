@@ -167,6 +167,21 @@ export function AppProvider({ children }: AppProviderProps) {
     loopController.clearPreviewQuality();
   }, []);
 
+  // Ref to track morph callback from PerformanceLayer
+  const morphPerformanceChordCallbackRef = useRef<((quality: ChordQuality) => void) | null>(null);
+
+  const morphPerformanceChord = useCallback((quality: ChordQuality) => {
+    // Call the callback if set (PerformanceLayer will set this)
+    if (morphPerformanceChordCallbackRef.current) {
+      morphPerformanceChordCallbackRef.current(quality);
+    }
+  }, []);
+
+  // Allow PerformanceLayer to register its morph callback
+  const registerMorphCallback = useCallback((callback: ((quality: ChordQuality) => void) | null) => {
+    morphPerformanceChordCallbackRef.current = callback;
+  }, []);
+
   // Recording actions
   const startRecording = useCallback(() => {
     setRecordedChords([]);
@@ -254,6 +269,8 @@ export function AppProvider({ children }: AppProviderProps) {
     setCurrentPerformanceChord,
     previewChordQuality,
     clearPreviewQuality,
+    morphPerformanceChord,
+    registerMorphCallback,
     startRecording,
     stopRecording,
     clearRecording,
