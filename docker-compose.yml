@@ -1,0 +1,24 @@
+services:
+  chord-app:
+    build: .
+    container_name: chord-app
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - shared-network
+
+  # QCA-MANAGED: chord-app-staging START
+  chord-app-staging:
+    build: /root/projects/workspaces/Chord-Music-App/staging
+    container_name: chord-app-staging
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - shared-network
+  # QCA-MANAGED: chord-app-staging END
+
+networks:
+  shared-network:
+    external: true
